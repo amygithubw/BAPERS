@@ -7,6 +7,8 @@ public class Main {
         lp.setVisible(true); // add a size relative to screen size
         System.out.println("change");
 
+        //LoginPage.checkLoginDetails();
+
 
 
     }

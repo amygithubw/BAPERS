@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class CreateJob extends JFrame {
 
@@ -269,6 +271,13 @@ public class CreateJob extends JFrame {
                 // use transaction
                 // isolation levels??
 
+                int urgency = Integer.parseInt(urgencyFormattedTextbox.getText().toString());
+
+                //System.out.println(java.time.LocalDateTime.now());
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                LocalDateTime ldt = LocalDateTime.now();
+                LocalDateTime new_ldt = ldt.plusHours(urgency);
+
 
                 Connection con = DbConnection.connect();
                 PreparedStatement ps = null;
@@ -276,29 +285,48 @@ public class CreateJob extends JFrame {
 
 
                 try {
+                    con.setAutoCommit(false);
                     // need to count how many rows there are in the job table and then add one to it plus a j for the job_id
                     String getJob_idCount = "SELECT count(job_id) FROM Job";
-
+                    ps = con.prepareStatement(getJob_idCount);
                     int job_id_count = rs.getInt(1);
+                    String job_id = ("J" + (job_id_count + 1));
 
-                    // payment_deadline = current date and time + urgency in YY:MM:DD HH:MM:SS
+                    // payment_deadline = current date and time + urgency in YYYY-MM-DD HH:MM:SS
 
 
                     int surcharge_int = Integer.parseInt(surchargeTextbox.getText().substring(0, surchargeTextbox.getText().length()-1));
                     
                     String insertJob = "INSERT INTO Job(job_id, status, sub_total, payment_deadline, urgency, Customeraccount_no, surcharge) VALUES (?,?,?,?,?,?,?)";
-                    ps.setString(1, ("J" + job_id_count + 1));
+                    ps = con.prepareStatement(insertJob);
+                    ps.setString(1, job_id);
                     ps.setString(2, "pending");
                     ps.setInt(3, sub_total);
-                    //ps.setString(4, payment deadline);
+                    ps.setDate(4, new java.sql.Date(urgency));
                     ps.setString(5, urgencyFormattedTextbox.getText());
                     ps.setString(6, selectCustomerComboBox.getSelectedItem().toString());
                     ps.setInt(7, surcharge_int);
 
-                    String insertTask = "";
+
+
+                    for (String line : tasksTextArea.getText().split("\\n")) {
+
+                        String get_task_id = "SELECT task_id FROM StandardTask WHERE task_description=?";
+                        ps = con.prepareStatement(get_task_id);
+                        ps.setString(1, line);
+                        rs = ps.executeQuery(get_task_id);
+                        String task_id = rs.getString(1);
+
+
+                        String insertTask = "INSERT INTO Job_StandardTask(Jobjob_id, StandardTasktask_id) VALUES (?,?)";
+                        ps = con.prepareStatement(insertTask);
+                        ps.setString(1, job_id);
+                        ps.setString(2, task_id);
+
+                    }
                     
                 } catch(SQLException ex) {
-                    JOptionPane.showMessageDialog(createJobPanel, "Please select a task.");
+                    JOptionPane.showMessageDialog(createJobPanel, "Failed to create job.");
                 } finally {
                     try {
                         rs.close();
@@ -308,6 +336,7 @@ public class CreateJob extends JFrame {
                         System.out.println(ex.toString());
                     }
                 }
+
 
 
             }

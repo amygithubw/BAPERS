@@ -30,6 +30,7 @@ public class CreateJob extends JFrame {
     private JFormattedTextField urgencyFormattedTextbox;
     private JButton OKButton;
     private JTextField urgencyTextbox;
+    int sub_total = 0;
 
     public CreateJob(String title) {
         super(title);
@@ -41,6 +42,8 @@ public class CreateJob extends JFrame {
 
         selectCustomerComboBox.addItem("");
         selectTaskComboBox.addItem("");
+
+
 
 
 
@@ -218,7 +221,7 @@ public class CreateJob extends JFrame {
 
                 // DONT ALLOW MORE THAN ONE TASK BE ADDED!!!!! check the line
 
-                int sub_total = 0;                    
+                //int sub_total = 0;
 
                 try {
 
@@ -230,15 +233,17 @@ public class CreateJob extends JFrame {
                         ps.setString(1, line);
                         rs = ps.executeQuery();
 
-                        sub_total += Integer.parseInt(rs.getString(1));
+                        //sub_total += Integer.parseInt(rs.getString(1));
+                        sub_total += rs.getInt(1);
                         // this doesnt work from string to int
                         
-                        subTotalTextArea.append(line + ": £" + rs.getString(1) + "\n");
+                        subTotalTextArea.append(line + ": £" + rs.getInt(1) + "\n");
                         // output the price in correct format eg not 110.3
                     }
 
                     ////subTotalTextArea.append("Sub-Total: £" + sub_total);
-                    System.out.println(sub_total);
+                    //System.out.println(sub_total);
+                    subTotalTextArea.append("Sub-total: £" + sub_total);
                     // ^^ doesnt work!!!!
 
                 } catch(SQLException ex) {
@@ -255,6 +260,7 @@ public class CreateJob extends JFrame {
 
             }
         });
+
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -262,6 +268,58 @@ public class CreateJob extends JFrame {
                 // add jobs and tasks and everything to database
                 // use transaction
                 // isolation levels??
+
+
+                Connection con = DbConnection.connect();
+                PreparedStatement ps = null;
+                ResultSet rs = null;
+
+
+                try {
+                    // need to count how many rows there are in the job table and then add one to it plus a j for the job_id
+                    String getJob_idCount = "SELECT count(job_id) FROM Job";
+
+                    int job_id_count = rs.getInt(1);
+
+                    // payment_deadline = current date and time + urgency in YY:MM:DD HH:MM:SS
+
+
+                    int surcharge_int = Integer.parseInt(surchargeTextbox.getText().substring(0, surchargeTextbox.getText().length()-1));
+                    
+                    String insertJob = "INSERT INTO Job(job_id, status, sub_total, payment_deadline, urgency, Customeraccount_no, surcharge) VALUES (?,?,?,?,?,?,?)";
+                    ps.setString(1, ("J" + job_id_count + 1));
+                    ps.setString(2, "pending");
+                    ps.setInt(3, sub_total);
+                    //ps.setString(4, payment deadline);
+                    ps.setString(5, urgencyFormattedTextbox.getText());
+                    ps.setString(6, selectCustomerComboBox.getSelectedItem().toString());
+                    ps.setInt(7, surcharge_int);
+
+                    String insertTask = "";
+                    
+                } catch(SQLException ex) {
+                    JOptionPane.showMessageDialog(createJobPanel, "Please select a task.");
+                } finally {
+                    try {
+                        rs.close();
+                        ps.close();
+                        con.close();
+                    } catch(SQLException ex) {
+                        System.out.println(ex.toString());
+                    }
+                }
+
+
+            }
+        });
+
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                // yes/no are you sure pop
+                // if yes, then clear all the boxes
+
 
             }
         });

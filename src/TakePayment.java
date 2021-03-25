@@ -15,16 +15,13 @@ public class TakePayment extends JFrame {
     private JComboBox jobIDComboBox;
     private JButton addJobButton;
     private JTextArea totalTextArea;
-    private JButton cashButton;
     private JButton cancelButton;
-    private JButton cardButton;
     private JLabel customerIDLabel;
     private JLabel jobIDLabel;
     private JLabel totalLabel;
     private JMenuBar takePaymentMenuBar;
     private JMenu logoutMenu;
     private JMenu homeMenu;
-    private JButton OKButton;
     private JButton saveButton;
     private JList paymentArea;
     private JButton removeSelectedButton;
@@ -55,7 +52,7 @@ public class TakePayment extends JFrame {
 
 
 
-
+/*
         OKButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -111,6 +108,8 @@ public class TakePayment extends JFrame {
 
             }
         });
+        */
+
 
 
 
@@ -352,6 +351,71 @@ public class TakePayment extends JFrame {
                     cashCheckBox.setSelected(false);
                     //cardCheckBox.setSelected(true);
                 }
+            }
+        });
+        customerIDComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                Connection con = DbConnection.connect();
+                PreparedStatement ps = null;
+                ResultSet rs = null;
+                //String acc = customerIDTextbox.getText();
+                String acc = customerIDComboBox.getSelectedItem().toString();
+                totalTextArea.setText(null);
+                lm.removeAllElements();
+
+
+
+                //System.out.println(acc);
+
+                try{
+                    String sql = "SELECT Customeraccount_no, job_id FROM Job WHERE status =\"completed\" AND Paymentpayment_id IS NULL AND Customeraccount_no =?";
+                    ps = con.prepareStatement(sql);
+                    //ps.setString(1,customerIDTextbox.getText());
+                    ps.setString(1, customerIDComboBox.getSelectedItem().toString());
+                    rs = ps.executeQuery();
+
+                    //System.out.println(rs.getString(1));
+
+
+                    if (acc.equals(rs.getString(1))) {
+                        jobIDComboBox.removeAllItems();
+                        jobIDComboBox.addItem("");
+
+                        if (jobIDComboBox.getItemCount() == 1) {
+                            while (rs.next()) {
+                                jobIDComboBox.addItem(rs.getString(2));
+                            }
+                        }
+                    }
+
+                } catch(SQLException ex) {
+                    //System.out.println(ex.toString());
+                    //customerIDTextbox.removeAll();
+                    //customerIDComboBox.removeAllItems();
+                    jobIDComboBox.removeAllItems();
+
+                    JOptionPane.showMessageDialog(takePaymentPanel, " INVALID OR NO JOBS IN PROGRESS");
+                } finally {
+                    try {
+                        rs.close();
+                        ps.close();
+                        con.close();
+                    } catch(SQLException ex) {
+                        System.out.println(ex.toString());
+                    }
+                }
+
+
+            }
+        });
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                // clear everything
+
             }
         });
     }

@@ -31,6 +31,7 @@ public class CreateJob extends JFrame {
     private JScrollPane scrollPane;
     private JFormattedTextField urgencyFormattedTextbox;
     private JButton OKButton;
+    private JButton takepaymentButton;
     private JTextField urgencyTextbox;
     int sub_total = 0;
 
@@ -428,6 +429,16 @@ public class CreateJob extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 CreateCustomer createCustomer = new CreateCustomer("Create Customer");
                 createCustomer.setVisible(true);
+            }
+        });
+        takepaymentButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                TakePayment tp = new TakePayment("Take Payment");
+                tp.setVisible(true);
+
+
             }
         });
     }

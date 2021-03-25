@@ -13,6 +13,9 @@ public class AutoGenerate extends JFrame {
     private JLabel hoursLabel;
     private JMenu logoutMenu;
     private JMenu homeMenu;
+    private JLabel everyLabel;
+    private JComboBox numbersComboBox;
+    private JComboBox wordsComboBox;
 
     public AutoGenerate(String title){
         super(title);

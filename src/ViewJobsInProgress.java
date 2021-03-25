@@ -1,6 +1,8 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,7 +16,6 @@ public class ViewJobsInProgress extends JFrame {
     private JMenuBar viewJobsInProgressMenuBar;
     private JMenu logoutMenu;
     private JMenu homeMenu;
-    private JButton viewButton;
 
     public ViewJobsInProgress(String title){
         super(title);
@@ -24,9 +25,10 @@ public class ViewJobsInProgress extends JFrame {
         this.pack();
 
 
-        viewButton.addActionListener(new ActionListener() {
+        viewJobsInProgressPanel.addMouseListener(new MouseAdapter() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void mouseEntered(MouseEvent e) {
+                super.mouseEntered(e);
 
                 Connection con = DbConnection.connect();
 
@@ -69,8 +71,6 @@ public class ViewJobsInProgress extends JFrame {
                         System.out.println(ex.toString());
                     }
                 }
-
-
 
             }
         });

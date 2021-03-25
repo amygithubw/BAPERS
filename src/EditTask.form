@@ -22,7 +22,9 @@
             <preferred-size width="150" height="-1"/>
           </grid>
         </constraints>
-        <properties/>
+        <properties>
+          <editable value="false"/>
+        </properties>
       </component>
       <component id="cc711" class="javax.swing.JLabel" binding="descriptionLabel">
         <constraints>

@@ -8,15 +8,15 @@
     <properties/>
     <border type="none"/>
     <children>
-      <component id="4fe79" class="javax.swing.JLabel" binding="firstNameLabel">
+      <component id="4fe79" class="javax.swing.JLabel" binding="customerNameLabel">
         <constraints>
           <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="First name:"/>
+          <text value="Customer name:"/>
         </properties>
       </component>
-      <component id="827ca" class="javax.swing.JTextField" binding="firstNameTextbox">
+      <component id="827ca" class="javax.swing.JTextField" binding="customerNameTextbox">
         <constraints>
           <grid row="2" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -24,39 +24,31 @@
         </constraints>
         <properties/>
       </component>
-      <component id="aade4" class="javax.swing.JLabel" binding="surnameLabel">
+      <component id="aade4" class="javax.swing.JLabel" binding="contactNameLabel">
         <constraints>
           <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Surname:"/>
+          <text value="Contact name:"/>
         </properties>
       </component>
       <component id="60db8" class="javax.swing.JLabel" binding="emailLabel">
         <constraints>
-          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text value="Email:"/>
         </properties>
       </component>
-      <component id="4e47" class="javax.swing.JLabel" binding="contactNoLabel">
-        <constraints>
-          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Contact No:"/>
-        </properties>
-      </component>
-      <component id="b92c4" class="javax.swing.JLabel" binding="customerIDLabel">
+      <component id="4e47" class="javax.swing.JLabel" binding="phoneNoLabel">
         <constraints>
           <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Customer ID:"/>
+          <text value="Phone No:"/>
         </properties>
       </component>
-      <component id="69017" class="javax.swing.JTextField" binding="surnameTextbox">
+      <component id="69017" class="javax.swing.JTextField" binding="contactNameTextbox">
         <constraints>
           <grid row="3" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -66,29 +58,19 @@
       </component>
       <component id="2eefa" class="javax.swing.JTextField" binding="emailTextbox">
         <constraints>
-          <grid row="4" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="-1"/>
-          </grid>
-        </constraints>
-        <properties/>
-      </component>
-      <component id="af164" class="javax.swing.JTextField" binding="contactNoTextbox">
-        <constraints>
           <grid row="5" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
           </grid>
         </constraints>
         <properties/>
       </component>
-      <component id="9c494" class="javax.swing.JTextField" binding="customerIDTextbox">
+      <component id="af164" class="javax.swing.JTextField" binding="phoneNoTextbox">
         <constraints>
           <grid row="6" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
           </grid>
         </constraints>
-        <properties>
-          <text value=""/>
-        </properties>
+        <properties/>
       </component>
       <component id="4044f" class="javax.swing.JButton" binding="saveButton" default-binding="true">
         <constraints>
@@ -158,6 +140,24 @@
           <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
         </constraints>
       </vspacer>
+      <component id="b92c4" class="javax.swing.JLabel" binding="addressLabel">
+        <constraints>
+          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Address:"/>
+        </properties>
+      </component>
+      <component id="9c494" class="javax.swing.JTextField" binding="addressTextbox">
+        <constraints>
+          <grid row="4" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <text value=""/>
+        </properties>
+      </component>
     </children>
   </grid>
 </form>

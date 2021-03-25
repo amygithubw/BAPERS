@@ -2,6 +2,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,7 +17,6 @@ public class ViewAllJobs extends JFrame {
     private JMenuBar viewAllJobsMenuBar;
     private JMenu logoutMenu;
     private JMenu homeMenu;
-    private JButton viewButton;
 
     public ViewAllJobs(String title){
         super(title);
@@ -25,9 +26,12 @@ public class ViewAllJobs extends JFrame {
         this.pack();
 
 
-        viewButton.addActionListener(new ActionListener() {
+
+        viewAllJobsPanel.addMouseListener(new MouseAdapter() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void mouseEntered(MouseEvent e) {
+                super.mouseEntered(e);
+
                 Connection con = DbConnection.connect();
 
                 PreparedStatement ps = null;
@@ -35,23 +39,10 @@ public class ViewAllJobs extends JFrame {
 
                 try {
 
-                    /* this is for searching something the user input, in the db
-                    String bs = search.getText();
-                    String SQL = "select * from BENEFICIARIES where localgovernment = '" +bs+"'";
-                    */
-
                     String sql = "SELECT job_id, status, sub_total, payment_deadline, Customeraccount_no FROM Job ORDER BY job_id";
                     ps = con.prepareStatement(sql);
 
                     rs = ps.executeQuery();
-
-                    //String job_id = rs.getString(1);
-                    //String status = rs.getString(2);
-                    //String sub_total = rs.getString(3);
-                    //String payment_deadline = rs.getString(4);
-                    //String customer_acc_no = rs.getString(5);
-
-                    //display all of these in the viewAllJobsTextArea
 
                     List<String> list = new ArrayList<String>();
                     while(rs.next()){
@@ -64,38 +55,11 @@ public class ViewAllJobs extends JFrame {
                         String display = job_id + " "+ status +" "+sub_total+" "+payment_deadline+" "+customer_acc_no;
                         list.add(display);
 
-                        //String tbData[] = {job_id, status, sub_total, payment_deadline, customer_acc_no};
-                            //DefaultTableModel tblModel = (DefaultTableModel)table1.getModel();
-                            //tblModel.addRow(tbData);
-
                     }
                     String string="";
                     for(String s:list)
                         string+=s+"\n";
                     viewAllJobsTextArea.setText(string);
-
-
-
-                    //viewAllJobsTextArea.setRows(10);
-
-                    //viewAllJobsTextArea.setText(rs.getString(1));
-                    //viewAllJobsTextArea.setText(rs.getString(2));
-                    //viewAllJobsTextArea.setText(rs.getString(3));
-                    //viewAllJobsTextArea.setText(rs.getString(4));
-                    //viewAllJobsTextArea.setText(rs.getString(5));
-                    // ^^ only prints out customer account of first job??
-
-
-
-                    /*
-                    while (rs.next()) {
-                        viewAllJobsTextArea.setText(rs.getString("job_id"));
-                        viewAllJobsTextArea.setText(rs.getString("status"));
-                        viewAllJobsTextArea.setText(rs.getString("sub_total"));
-                        viewAllJobsTextArea.setText(rs.getString("payment_deadline"));
-                        viewAllJobsTextArea.setText(rs.getString("Customeraccount_no"));
-                    }
-                    */
 
 
                 } catch(SQLException ex) {
@@ -110,7 +74,6 @@ public class ViewAllJobs extends JFrame {
                         System.out.println(ex.toString());
                     }
                 }
-
 
 
             }

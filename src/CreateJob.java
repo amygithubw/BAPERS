@@ -34,6 +34,7 @@ public class CreateJob extends JFrame {
     private JTextField urgencyTextbox;
     int sub_total = 0;
 
+
     public CreateJob(String title) {
         super(title);
 
@@ -44,6 +45,16 @@ public class CreateJob extends JFrame {
 
         selectCustomerComboBox.addItem("");
         selectTaskComboBox.addItem("");
+
+
+        // need to check that the job is being assigned to a customer that exists,
+        // if not, error message and dont add to db
+
+        // "receptionist & OM & SM : assign job number "
+        // you need to allow them to assign job number!!!!!!!!!
+        // as record deadline for completion and any special instructions!!!!!!!
+
+
 
 
 
@@ -116,6 +127,10 @@ public class CreateJob extends JFrame {
                         System.out.println(ex.toString());
                     }
                 }
+                
+                
+                
+                
 
 
 
@@ -127,26 +142,61 @@ public class CreateJob extends JFrame {
             public void actionPerformed(ActionEvent e) {
 
                 String selectedTask = selectTaskComboBox.getSelectedItem().toString();
+                //System.out.println(selectedTask);
 
                 boolean chosen = false;
                 // ^^ doesnt work
 
+
+                // this should check for multiple selections of tasks, but doesnt work
                 for (String line : tasksTextArea.getText().split("\\n")) {
+                    //System.out.println(line);
                     if (selectedTask == line){
-                        System.out.println("chosen two");
+                        //System.out.println("chosen two");
+                        chosen = true;
                         // ^^ not working
                     }
                 }
 
                 if (selectTaskComboBox.getSelectedItem() == "") {
                     JOptionPane.showMessageDialog(createJobPanel, "Please select a task.");
-                } else if (chosen == true) {
-                    JOptionPane.showMessageDialog(createJobPanel, "Task already selected, please select another.");
-                } else {
+                }  else if (chosen) {
+                    JOptionPane.showMessageDialog(createJobPanel, "Already selected.");
+                }  else {
                     tasksTextArea.append(selectedTask + "\n");
                 }
 
 
+                /*
+                // delete this
+
+                Connection con = DbConnection.connect();
+                PreparedStatement ps = null;
+                ResultSet rs = null;
+
+
+                try {
+                    String sql = "SELECT payment_deadline FROM Job WHERE job_id=?";
+                    ps = con.prepareStatement(sql);
+                    ps.setString(1, "J1");
+                    rs = ps.executeQuery();
+
+                    System.out.println(rs.getDate(1));
+                } catch(SQLException ex) {
+                        System.out.println(ex.toString());
+                } finally {
+                    try {
+                            rs.close();
+                            ps.close();
+                            con.close();
+                    } catch(SQLException ex) {
+                            System.out.println(ex.toString());
+                        }
+                }
+
+                    
+                // ^^ delete this
+                */
 
 
 
@@ -280,16 +330,27 @@ public class CreateJob extends JFrame {
 
 
                 Connection con = DbConnection.connect();
-                PreparedStatement ps = null;
-                ResultSet rs = null;
+                //PreparedStatement ps = null;
+                //ResultSet rs = null;
+
+                String getJob_idCount = "SELECT count(job_id) FROM Job";
+                String insertJob = "INSERT INTO Job(job_id, status, sub_total, payment_deadline, urgency, Customeraccount_no, surcharge) VALUES (?,?,?,?,?,?,?)";
+                String get_task_id = "SELECT task_id FROM StandardTask WHERE task_description=?";
+                String insertTask = "INSERT INTO Job_StandardTask(Jobjob_id, StandardTasktask_id) VALUES (?,?)";
 
 
-                try {
+                try (PreparedStatement ps_getJob_idCount = con.prepareStatement(getJob_idCount);
+                    PreparedStatement ps_insertJob = con.prepareStatement(insertJob);
+                    PreparedStatement ps_get_task_id = con.prepareStatement(get_task_id);
+                    PreparedStatement ps_insertTask = con.prepareStatement(insertTask))
+
+                {
                     con.setAutoCommit(false);
                     // need to count how many rows there are in the job table and then add one to it plus a j for the job_id
-                    String getJob_idCount = "SELECT count(job_id) FROM Job";
-                    ps = con.prepareStatement(getJob_idCount);
-                    int job_id_count = rs.getInt(1);
+
+                    //ps = con.prepareStatement(getJob_idCount);
+                    ResultSet rs_getJob_idCount = ps_getJob_idCount.executeQuery();
+                    int job_id_count = rs_getJob_idCount.getInt(1);
                     String job_id = ("J" + (job_id_count + 1));
 
                     // payment_deadline = current date and time + urgency in YYYY-MM-DD HH:MM:SS
@@ -297,40 +358,50 @@ public class CreateJob extends JFrame {
 
                     int surcharge_int = Integer.parseInt(surchargeTextbox.getText().substring(0, surchargeTextbox.getText().length()-1));
                     
-                    String insertJob = "INSERT INTO Job(job_id, status, sub_total, payment_deadline, urgency, Customeraccount_no, surcharge) VALUES (?,?,?,?,?,?,?)";
-                    ps = con.prepareStatement(insertJob);
-                    ps.setString(1, job_id);
-                    ps.setString(2, "pending");
-                    ps.setInt(3, sub_total);
-                    ps.setDate(4, new java.sql.Date(urgency));
-                    ps.setString(5, urgencyFormattedTextbox.getText());
-                    ps.setString(6, selectCustomerComboBox.getSelectedItem().toString());
-                    ps.setInt(7, surcharge_int);
+
+                    //ps = con.prepareStatement(insertJob);
+                    ps_insertJob.setString(1, job_id);
+                    ps_insertJob.setString(2, "pending");
+                    ps_insertJob.setInt(3, sub_total);
+                    ps_insertJob.setDate(4, new java.sql.Date(urgency));
+                    // ^^ this isnt right, this adds the urgency to the payment_deadline column
+                    // needs to add the current date and time + the urgency
+                    ps_insertJob.setString(5, urgencyFormattedTextbox.getText());
+                    ps_insertJob.setString(6, selectCustomerComboBox.getSelectedItem().toString());
+                    ps_insertJob.setInt(7, surcharge_int);
+                    //ResultSet rs_insertJob = ps_insertJob.executeQuery();
+                    ps_insertJob.executeUpdate();
 
 
 
                     for (String line : tasksTextArea.getText().split("\\n")) {
 
-                        String get_task_id = "SELECT task_id FROM StandardTask WHERE task_description=?";
-                        ps = con.prepareStatement(get_task_id);
-                        ps.setString(1, line);
-                        rs = ps.executeQuery(get_task_id);
-                        String task_id = rs.getString(1);
+
+                        //ps = con.prepareStatement(get_task_id);
+                        ps_get_task_id.setString(1, line);
+                        ResultSet rs_get_task_id = ps_get_task_id.executeQuery();
+                        String task_id = rs_get_task_id.getString(1);
 
 
-                        String insertTask = "INSERT INTO Job_StandardTask(Jobjob_id, StandardTasktask_id) VALUES (?,?)";
-                        ps = con.prepareStatement(insertTask);
-                        ps.setString(1, job_id);
-                        ps.setString(2, task_id);
+
+                        //ps = con.prepareStatement(insertTask);
+                        ps_insertTask.setString(1, job_id);
+                        ps_insertTask.setString(2, task_id);
+                        //ResultSet rs_insertTask = ps_insertTask.executeQuery();
+                        ps_insertTask.executeUpdate();
+
+                        con.commit();
 
                     }
+                    con.commit();
                     
                 } catch(SQLException ex) {
+                    //System.out.println(ex.toString());
                     JOptionPane.showMessageDialog(createJobPanel, "Failed to create job.");
                 } finally {
                     try {
-                        rs.close();
-                        ps.close();
+                        //rs.close();
+                        //ps.close();
                         con.close();
                     } catch(SQLException ex) {
                         System.out.println(ex.toString());
@@ -350,6 +421,13 @@ public class CreateJob extends JFrame {
                 // if yes, then clear all the boxes
 
 
+            }
+        });
+        createCustomerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CreateCustomer createCustomer = new CreateCustomer("Create Customer");
+                createCustomer.setVisible(true);
             }
         });
     }

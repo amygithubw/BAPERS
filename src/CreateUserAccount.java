@@ -9,7 +9,6 @@ public class CreateUserAccount extends JFrame{
     private JTextField emailTextbox;
     private JTextField contactNoTextbox;
     private JTextField usernameTextbox;
-    private JTextField passwordTextbox;
     private JTextField staffIDTextbox;
     private JLabel firstnameLabel;
     private JLabel surnameLabel;
@@ -25,6 +24,7 @@ public class CreateUserAccount extends JFrame{
     private JMenu homeMenu;
     private JButton saveButton;
     private JButton cancelButton;
+    private JPasswordField passwordTextbox;
 
     public CreateUserAccount(String title){
         super(title);

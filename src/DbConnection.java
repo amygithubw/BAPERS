@@ -11,7 +11,7 @@ public class DbConnection {
             String url = "jdbc:sqlite:C:\\Users\\User\\Documents\\AMY\\A. UNI\\Year 2\\Term 2\\team project\\BPS.db";
             con = DriverManager.getConnection(url);
             //con = DriverManager.getConnection("jdbc:sqlite:BAPERS.db");
-            System.out.println("Connection successful.");
+            //System.out.println("Connection successful.");
         }
         catch (ClassNotFoundException | SQLException e) {
             System.out.println(e + "Connection failed.");

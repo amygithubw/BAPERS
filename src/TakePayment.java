@@ -32,6 +32,8 @@ public class TakePayment extends JFrame {
     private static DecimalFormat df = new DecimalFormat("#.##");
     String payment_type;
 
+    boolean isValued = false;
+
 
 
 
@@ -125,45 +127,108 @@ public class TakePayment extends JFrame {
 
                 String s = jobIDComboBox.getSelectedItem().toString();
 
-                if (lm.contains(s)){
-                    JOptionPane.showMessageDialog(takePaymentPanel, "JOB ALREADY SELECTED");
 
+                try {
+                    String is_valued = "SELECT Customeraccount_no FROM Valued_Customer";
+                    ps = con.prepareStatement(is_valued);
+                    rs = ps.executeQuery();
+                    isValued = false;
+                    while (rs.next()){
+                        if (rs.getString(1).equals(customerIDComboBox.getSelectedItem().toString())){
+                            isValued = true;
+                        } // if
+                    } // while
 
-                }
-                else{
-                    totalTextArea.setText(null);
-                    lm.addElement(s);
-
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(takePaymentPanel, "Please select a task.");
+                } finally {
                     try {
-                        String sql = "SELECT sub_total FROM Job WHERE job_id =? ";
-
-
-                        for (int i = 0; i < lm.getSize(); i++) {
-                            String x = lm.getElementAt(i);
-                            ps = con.prepareStatement(sql);
-                            ps.setString(1, x);
-                            rs = ps.executeQuery();
-                            tot += rs.getDouble(1);
-
-                        }
-                        totalTextArea.append("£"+ df.format(tot));
-
-
+                        //rs.close();
+                        //ps.close();
+                        con.close();
                     } catch (SQLException ex) {
-                        JOptionPane.showMessageDialog(takePaymentPanel, "Please select a task.");
-                    } finally {
-                        try {
-                            rs.close();
-                            ps.close();
-                            con.close();
-                        } catch (SQLException ex) {
-                            System.out.println(ex.toString());
-                        }
+                        System.out.println(ex.toString());
                     }
-
-
                 }
+                System.out.println(lm.getSize());
 
+
+
+                if (lm.size()==0) {
+
+
+                            totalTextArea.setText(null);
+                            lm.addElement(s);
+
+                            try {
+                                String sql = "SELECT sub_total FROM Job WHERE job_id =? ";
+
+
+                                for (int i = 0; i < lm.getSize(); i++) {
+                                    String x = lm.getElementAt(i);
+                                    ps = con.prepareStatement(sql);
+                                    ps.setString(1, x);
+                                    rs = ps.executeQuery();
+                                    tot += rs.getDouble(1);
+
+                                }
+                                totalTextArea.append("£" + df.format(tot));
+
+
+                            } catch (SQLException ex) {
+                                //JOptionPane.showMessageDialog(takePaymentPanel, "Please select a task.");
+                            } finally {
+                                try {
+                                    rs.close();
+                                    ps.close();
+                                    con.close();
+                                } catch (SQLException ex) {
+                                    System.out.println(ex.toString());
+                                }
+                            }
+
+                } else if (isValued) {
+                        if (lm.contains(s)) {
+                            JOptionPane.showMessageDialog(takePaymentPanel, "JOB ALREADY SELECTED");
+
+
+                        } else {
+
+                            totalTextArea.setText(null);
+                            lm.addElement(s);
+
+                            try {
+                                String sql = "SELECT sub_total FROM Job WHERE job_id =? ";
+
+
+                                for (int i = 0; i < lm.getSize(); i++) {
+                                    String x = lm.getElementAt(i);
+                                    ps = con.prepareStatement(sql);
+                                    ps.setString(1, x);
+                                    rs = ps.executeQuery();
+                                    tot += rs.getDouble(1);
+
+                                }
+                                totalTextArea.append("£" + df.format(tot));
+
+
+                            } catch (SQLException ex) {
+                                //JOptionPane.showMessageDialog(takePaymentPanel, "Please select a task.");
+                            } finally {
+                                try {
+                                    rs.close();
+                                    ps.close();
+                                    con.close();
+                                } catch (SQLException ex) {
+                                    System.out.println(ex.toString());
+                                }
+                            }
+
+
+                        }
+                } else {
+                    JOptionPane.showMessageDialog(takePaymentPanel, "Customer not valued, please only selct 1 job.");
+                }
 
 
 
@@ -171,6 +236,7 @@ public class TakePayment extends JFrame {
             }
 
         });
+
         removeSelectedButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

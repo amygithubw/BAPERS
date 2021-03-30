@@ -55,6 +55,7 @@ public class CreateJob extends JFrame {
 
     int flexible_discount = 0;
     int apply_flexible_discount = 0;
+    int next_apply_flexible_discount = 0;
 
     public CreateJob(String title) {
         super(title);
@@ -314,6 +315,184 @@ public class CreateJob extends JFrame {
                             if (rs_get_valued_customers.getString(1).equals(account_no)){
                                 //System.out.println("is valued");
 
+                                Connection con2 = DbConnection.connect();
+                                PreparedStatement ps = null;
+                                ResultSet rs = null;
+                                try {
+                                    String fixed = "SELECT Fixed_Discountdiscount_id FROM Valued_Customer WHERE Customeraccount_no=?";
+
+                                    ps.setString(1, account_no);
+                                    ps = con2.prepareStatement(fixed);
+                                    rs = ps.executeQuery();
+
+                                    if (rs.getString(1) != null){
+
+
+                                        ps_get_fixedID.setString(1, account_no);
+                                        ResultSet rs_get_fixedID = ps_get_fixedID.executeQuery();
+
+                                        ps_get_fixed_rate.setString(1, rs_get_fixedID.getString(1));
+                                        ResultSet rs_get_fixed_rate = ps_get_fixed_rate.executeQuery();
+                                        int fixed_discount = rs_get_fixed_rate.getInt(1);
+                                        System.out.println(fixed_discount);
+
+                                        //int d = tot*(fixed_discount/100);
+                                        //int x = (tot * d);
+                                        tot = (tot - (tot*(fixed_discount/100)));
+
+
+
+
+
+
+                                    }
+
+                                } catch (SQLException ex) {
+
+                                } finally {
+                                    try {
+                                        //rs.close();
+                                        //ps.close();
+                                        con.close();
+                                    } catch (SQLException ex) {
+                                        System.out.println(ex.toString());
+                                    }
+                                }
+
+
+
+                                try {
+                                    String flexible = "SELECT Flexible_Discountdiscount_id FROM Job WHERE Customeraccount_no=?";
+
+                                    ps.setString(1, account_no);
+                                    ps = con2.prepareStatement(flexible);
+                                    rs = ps.executeQuery();
+
+                                    if (rs.getString(1) != null){
+
+
+
+                                        ps_get_flexibleID.setString(1, account_no);
+                                        ResultSet rs_get_flexibleID = ps_get_flexibleID.executeQuery();
+
+                                        ps_get_flexible_rate.setString(1, rs_get_flexibleID.getString(1));
+                                        ResultSet rs_get_flexible_rate = ps_get_flexible_rate.executeQuery();
+
+                                        ps_get_flexible_jobs.setString(1, account_no);
+                                        ResultSet rs_get_flexible_jobs = ps_get_flexible_jobs.executeQuery();
+
+                                        if (rs_get_flexible_jobs.getInt(1) < 1000){
+                                            int st = rs_get_flexible_jobs.getInt(1);
+                                            int rate = rs_get_flexible_rate.getInt(1);
+
+                                            flexible_discount = (st * (rate/100));
+
+                                            if (flexible_discount > 0){
+                                                next_apply_flexible_discount = flexible_discount;
+
+                                                // if there is already a discount from previously,
+                                                // store it elsewhere to apply it this time
+                                                // and store this discount ready for next time
+                                            }
+
+
+                                        }
+
+
+
+
+
+                                    }
+
+                                } catch (SQLException ex) {
+
+                                } finally {
+                                    try {
+                                        //rs.close();
+                                        //ps.close();
+                                        con.close();
+                                    } catch (SQLException ex) {
+                                        System.out.println(ex.toString());
+                                    }
+                                }
+
+
+
+
+                                String job_id = "SELECT job_id FROM Job WHERE Customeraccount_no=?";
+                                String variable = "SELECT Variable_Discountdiscount_id FROM Job_StandardTask WHERE Jobjob_id=?";
+
+                                try (PreparedStatement ps_job_id = con2.prepareStatement(job_id);
+                                PreparedStatement ps_variable = con2.prepareStatement(variable) )
+                                {
+
+                                    con.setAutoCommit(false);
+
+                                    ps_job_id.setString(1, account_no);
+                                    ResultSet rs_job_id = ps_job_id.executeQuery();
+
+                                    ps_variable.setString(1, rs_job_id.getString(1));
+                                    ResultSet rs_variable = ps_variable.executeQuery();
+
+                                    con.commit();
+
+
+                                    if (rs_variable.getString(1) != null){
+
+
+
+                                        ps_get_job_id.setString(1, account_no);
+                                        ResultSet rs_get_job_id = ps_get_job_id.executeQuery();
+
+                                        ps_get_v_ID.setString(1, rs_get_job_id.getString(1));
+                                        ResultSet rs_get_v_ID = ps_get_v_ID.executeQuery();
+
+                                        ps_get_v_rate.setString(1, rs_get_v_ID.getString(1));
+                                        ResultSet rs_get_v_rate = ps_get_v_rate.executeQuery();
+
+
+                                        String rates = rs_get_v_rate.getString(1);
+                                        String[] rates_array = rates.split("\\s*,\\s*");
+                                        //System.out.println(rates_array);
+
+                                        ps_get_task.setString(1, rs_get_job_id.getString(1));
+                                        ResultSet rs_get_task = ps_get_task.executeQuery();
+                                        while (rs_get_task.next()){
+
+                                            int num = Integer.parseInt(rs_get_task.getString(1).substring(1));
+                                            String t = rates_array[num];
+                                            tot = (tot - (tot*(Integer.parseInt(t)/100)));
+
+                                        } // while
+
+
+
+
+
+
+
+                                    }
+
+                                } catch (SQLException ex) {
+
+                                } finally {
+                                    try {
+                                        //rs.close();
+                                        //ps.close();
+                                        con.close();
+                                    } catch (SQLException ex) {
+                                        System.out.println(ex.toString());
+                                    }
+                                }
+
+
+
+
+
+
+
+
+                                /*
                                 if (CreateFixedDiscount.fixed){
 
                                     ps_get_fixedID.setString(1, account_no);
@@ -388,6 +567,8 @@ public class CreateJob extends JFrame {
 
 
                                 }
+
+                                */
 
 
 
@@ -470,6 +651,9 @@ public class CreateJob extends JFrame {
 
                     if (apply_flexible_discount > 0){
                         subtot = subtot - apply_flexible_discount;
+                        apply_flexible_discount = next_apply_flexible_discount;
+                    } else {
+
                     }
 
                     subtot = (tot * surcharge) * 1.2;

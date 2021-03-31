@@ -193,7 +193,7 @@ public class CreateFixedDiscount extends JFrame {
 
                         boolean exists = false;
                         while (rs_get_FixedRate.next()) {
-                            exists = false;
+                            //exists = false;
                             if (rs_get_FixedRate.getString(1).equals(rateTextbox.getText())) {
                                 //JOptionPane.showMessageDialog(createDiscountPanel, "Discount already exists.");
                                 ps_get_dID.setString(1, rateTextbox.getText());
@@ -204,9 +204,9 @@ public class CreateFixedDiscount extends JFrame {
                                 ps_insert_fixed.setString(2, customerIDComboBox.getSelectedItem().toString());
                                 ps_insert_fixed.executeUpdate();
                                 JOptionPane.showMessageDialog(createDiscountPanel, "Discount applied.");
-                                fixed = true;
-                                CreateFlexibleDiscount.flexible = false;
-                                CreateVariableDiscount.variable = false;
+                                //fixed = true;
+                                //CreateFlexibleDiscount.flexible = false;
+                                //CreateVariableDiscount.variable = false;
                                 exists = true;
                             }
                         }
@@ -218,9 +218,9 @@ public class CreateFixedDiscount extends JFrame {
                             ps_insert_fixed.setString(1, fixed_id);
                             ps_insert_fixed.setString(2, customerIDComboBox.getSelectedItem().toString());
                             ps_insert_fixed.executeUpdate();
-                            fixed = true;
-                            CreateFlexibleDiscount.flexible = false;
-                            CreateVariableDiscount.variable = false;
+                            //fixed = true;
+                            //CreateFlexibleDiscount.flexible = false;
+                            //CreateVariableDiscount.variable = false;
                             JOptionPane.showMessageDialog(createDiscountPanel, "Discount applied.");
                         }
 

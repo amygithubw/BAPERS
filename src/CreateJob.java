@@ -565,13 +565,6 @@ public class CreateJob extends JFrame {
                                     }
                                 }
 
-
-
-
-
-
-
-
                                 /*
                                 if (CreateFixedDiscount.fixed){
 

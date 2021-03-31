@@ -273,6 +273,9 @@ public class CreateJob extends JFrame {
         OKButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                //System.out.println("accountno:"+account_no);
+
                 urgency = Integer.parseInt(urgencyComboBox.getSelectedItem().toString());
                 if(tot > 0) {
 
@@ -316,16 +319,18 @@ public class CreateJob extends JFrame {
                                 //System.out.println("is valued");
 
                                 Connection con2 = DbConnection.connect();
-                                PreparedStatement ps = null;
-                                ResultSet rs = null;
-                                try {
-                                    String fixed = "SELECT Fixed_Discountdiscount_id FROM Valued_Customer WHERE Customeraccount_no=?";
+                                //PreparedStatement ps = null;
+                                //ResultSet rs = null;
+                                String fixed = "SELECT Fixed_Discountdiscount_id FROM Valued_Customer WHERE Customeraccount_no=?";
+                                try (PreparedStatement ps_fixed = con2.prepareStatement(fixed) ) {
 
-                                    ps.setString(1, account_no);
-                                    ps = con2.prepareStatement(fixed);
-                                    rs = ps.executeQuery();
 
-                                    if (rs.getString(1) != null){
+                                    ps_fixed.setString(1, account_no);
+                                    //ps_fixed = con2.prepareStatement(fixed);
+                                    ResultSet rs_fixed = ps_fixed.executeQuery();
+
+
+                                    if (rs_fixed.getString(1) != null) {
 
 
                                         ps_get_fixedID.setString(1, account_no);
@@ -334,18 +339,23 @@ public class CreateJob extends JFrame {
                                         ps_get_fixed_rate.setString(1, rs_get_fixedID.getString(1));
                                         ResultSet rs_get_fixed_rate = ps_get_fixed_rate.executeQuery();
                                         int fixed_discount = rs_get_fixed_rate.getInt(1);
-                                        System.out.println(fixed_discount);
+                                        System.out.println("fixed_discount:"+fixed_discount);
 
-                                        //int d = tot*(fixed_discount/100);
-                                        //int x = (tot * d);
-                                        tot = (tot - (tot*(fixed_discount/100)));
+                                        float d = (fixed_discount/100); // 0.03
+                                        System.out.println("d:"+d);
+                                        double x = tot * d;
+                                        System.out.println("x:"+x);
+                                        System.out.println("original tot:" + tot);
+                                        tot = tot - x;
+                                        //tot = (tot - (tot * (fixed_discount / 100)));
+                                        System.out.println("fixed tot:" + tot);
+
+
+                                    } // if
 
 
 
 
-
-
-                                    }
 
                                 } catch (SQLException ex) {
 
@@ -361,14 +371,15 @@ public class CreateJob extends JFrame {
 
 
 
-                                try {
-                                    String flexible = "SELECT Flexible_Discountdiscount_id FROM Job WHERE Customeraccount_no=?";
+                                String flexible = "SELECT Flexible_Discountdiscount_id FROM Job WHERE Customeraccount_no=?";
+                                try (PreparedStatement ps_flexible = con2.prepareStatement(flexible)) {
 
-                                    ps.setString(1, account_no);
-                                    ps = con2.prepareStatement(flexible);
-                                    rs = ps.executeQuery();
 
-                                    if (rs.getString(1) != null){
+                                    ps_flexible.setString(1, account_no);
+                                    //ps = con2.prepareStatement(flexible);
+                                    ResultSet rs_flexible = ps_flexible.executeQuery();
+
+                                    if (rs_flexible.getString(1) != null){
 
 
 
@@ -386,6 +397,7 @@ public class CreateJob extends JFrame {
                                             int rate = rs_get_flexible_rate.getInt(1);
 
                                             flexible_discount = (st * (rate/100));
+                                            System.out.println("flexible discount:"+flexible_discount);
 
                                             if (flexible_discount > 0){
                                                 next_apply_flexible_discount = flexible_discount;
@@ -461,7 +473,10 @@ public class CreateJob extends JFrame {
 
                                             int num = Integer.parseInt(rs_get_task.getString(1).substring(1));
                                             String t = rates_array[num];
+                                            System.out.println("array:"+t);
+                                            System.out.println("original tot:"+ tot);
                                             tot = (tot - (tot*(Integer.parseInt(t)/100)));
+                                            System.out.println("variable tot"+tot);
 
                                         } // while
 
@@ -651,10 +666,9 @@ public class CreateJob extends JFrame {
 
                     if (apply_flexible_discount > 0){
                         subtot = subtot - apply_flexible_discount;
-                        apply_flexible_discount = next_apply_flexible_discount;
-                    } else {
 
                     }
+                    apply_flexible_discount = next_apply_flexible_discount;
 
                     subtot = (tot * surcharge) * 1.2;
 

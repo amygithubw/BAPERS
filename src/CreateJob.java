@@ -53,9 +53,9 @@ public class CreateJob extends JFrame {
 
 
 
-    int flexible_discount = 0;
-    int apply_flexible_discount = 0;
-    int next_apply_flexible_discount = 0;
+    double flexible_discount = 0;
+    double apply_flexible_discount = 0;
+    double next_apply_flexible_discount = 0;
 
     public CreateJob(String title) {
         super(title);
@@ -287,26 +287,11 @@ public class CreateJob extends JFrame {
                     String get_fixedID = "SELECT Fixed_Discountdiscount_id FROM Valued_Customer WHERE Customeraccount_no=?";
                     String get_fixed_rate = "SELECT discount_rate FROM Fixed_Discount WHERE discount_id=?";
 
-                    String get_flexible_jobs = "SELECT SUM(sub_total) FROM Job WHERE Customeraccount_no=? GROUP BY payment_deadline";
-                    String get_flexibleID = "SELECT Flexible_Discountdiscount_id FROM Job WHERE Customeraccount_no=?";
-                    String get_flexible_rate = "SELECT discount_rate FROM Flexible_Discount WHERE discount_id=?";
 
-                    String get_v_ID = "SELECT Variable_Discountdiscount_id FROM Job_StandardTask WHERE Jobjob_id=?";
-                    String get_job_id = "SELECT job_id FROM Job WHERE Customeraccount_no=?";
-                    String get_v_rate = "SELECT discount_rate FROM Variable_Discount WHERE discount_id=?";
-
-                    String get_task = "SELECT StandardTasktask_id FROM Job_StandardTask WHERE Jobjob_id=?";
 
                     try (PreparedStatement ps_get_valued_customers = con.prepareStatement(get_valued_customers);
                          PreparedStatement ps_get_fixedID = con.prepareStatement(get_fixedID);
-                         PreparedStatement ps_get_fixed_rate = con.prepareStatement(get_fixed_rate);
-                         PreparedStatement ps_get_flexible_jobs = con.prepareStatement(get_flexible_jobs);
-                         PreparedStatement ps_get_flexible_rate = con.prepareStatement(get_flexible_rate);
-                         PreparedStatement ps_get_flexibleID = con.prepareStatement(get_flexibleID);
-                         PreparedStatement ps_get_job_id = con.prepareStatement(get_job_id);
-                         PreparedStatement ps_get_v_ID = con.prepareStatement(get_v_ID);
-                         PreparedStatement ps_get_v_rate = con.prepareStatement(get_v_rate);
-                         PreparedStatement ps_get_task = con.prepareStatement(get_task) )
+                         PreparedStatement ps_get_fixed_rate = con.prepareStatement(get_fixed_rate) )
                     {
                         con.setAutoCommit(false);
 
@@ -341,15 +326,9 @@ public class CreateJob extends JFrame {
                                         int fixed_discount = rs_get_fixed_rate.getInt(1);
                                         System.out.println("fixed_discount:"+fixed_discount);
 
-                                        float d = (fixed_discount/100); // 0.03
-                                        System.out.println("d:"+d);
+                                        double d = (fixed_discount/100.0);
                                         double x = tot * d;
-                                        System.out.println("x:"+x);
-                                        System.out.println("original tot:" + tot);
                                         tot = tot - x;
-                                        //tot = (tot - (tot * (fixed_discount / 100)));
-                                        System.out.println("fixed tot:" + tot);
-
 
                                     } // if
 
@@ -372,7 +351,15 @@ public class CreateJob extends JFrame {
 
 
                                 String flexible = "SELECT Flexible_Discountdiscount_id FROM Job WHERE Customeraccount_no=?";
-                                try (PreparedStatement ps_flexible = con2.prepareStatement(flexible)) {
+
+                                String get_flexible_jobs = "SELECT SUM(sub_total) FROM Job WHERE Customeraccount_no=? GROUP BY payment_deadline";
+                                String get_flexibleID = "SELECT Flexible_Discountdiscount_id FROM Job WHERE Customeraccount_no=?";
+                                String get_flexible_rate = "SELECT discount_rate FROM Flexible_Discount WHERE discount_id=?";
+
+                                try (PreparedStatement ps_flexible = con2.prepareStatement(flexible);
+                                     PreparedStatement ps_get_flexible_jobs = con2.prepareStatement(get_flexible_jobs);
+                                     PreparedStatement ps_get_flexible_rate = con2.prepareStatement(get_flexible_rate);
+                                     PreparedStatement ps_get_flexibleID = con2.prepareStatement(get_flexibleID)) {
 
 
                                     ps_flexible.setString(1, account_no);
@@ -392,12 +379,25 @@ public class CreateJob extends JFrame {
                                         ps_get_flexible_jobs.setString(1, account_no);
                                         ResultSet rs_get_flexible_jobs = ps_get_flexible_jobs.executeQuery();
 
-                                        if (rs_get_flexible_jobs.getInt(1) < 1000){
-                                            int st = rs_get_flexible_jobs.getInt(1);
-                                            int rate = rs_get_flexible_rate.getInt(1);
 
-                                            flexible_discount = (st * (rate/100));
-                                            System.out.println("flexible discount:"+flexible_discount);
+                                        int st = rs_get_flexible_jobs.getInt(1);
+                                        String rate = rs_get_flexible_rate.getString(1);
+                                        String[] numbers = rate.split(",");
+                                        int less_than = Integer.parseInt(numbers[0]);
+                                        int between = Integer.parseInt(numbers[1]);
+                                        int more_than = Integer.parseInt(numbers[2]);
+
+
+                                        //System.out.println("priceofjobs:"+rs_get_flexible_jobs.getInt(1));
+                                        if (rs_get_flexible_jobs.getInt(1) < 1000){
+
+                                            double d = (less_than/100.0);
+                                            //System.out.println("d:"+d);
+                                            if (d>0) {
+                                                flexible_discount = (st * d);
+
+                                            }
+                                            //System.out.println("flexible discount:" + flexible_discount);
 
                                             if (flexible_discount > 0){
                                                 next_apply_flexible_discount = flexible_discount;
@@ -405,6 +405,30 @@ public class CreateJob extends JFrame {
                                                 // if there is already a discount from previously,
                                                 // store it elsewhere to apply it this time
                                                 // and store this discount ready for next time
+                                            }
+
+
+                                        } else if ((rs_get_flexible_jobs.getInt(1) >= 1000 && (rs_get_flexible_jobs.getInt(1) <= 2000))) {
+
+                                            double d = (between/100.0);
+                                            if (d>0) {
+                                                flexible_discount = (st * d);
+
+                                            }
+                                            if (flexible_discount > 0){
+                                                next_apply_flexible_discount = flexible_discount;
+                                            }
+
+
+                                        } else if (rs_get_flexible_jobs.getInt(1) > 1000){
+
+                                            double d = (more_than/100.0);
+                                            if (d>0) {
+                                                flexible_discount = (st * d);
+
+                                            }
+                                            if (flexible_discount > 0){
+                                                next_apply_flexible_discount = flexible_discount;
                                             }
 
 
@@ -434,49 +458,90 @@ public class CreateJob extends JFrame {
                                 String job_id = "SELECT job_id FROM Job WHERE Customeraccount_no=?";
                                 String variable = "SELECT Variable_Discountdiscount_id FROM Job_StandardTask WHERE Jobjob_id=?";
 
+                                String get_v_ID = "SELECT Variable_Discountdiscount_id FROM Job_StandardTask WHERE Jobjob_id=?";
+                                String get_job_id = "SELECT job_id FROM Job WHERE Customeraccount_no=?";
+                                String get_v_rate = "SELECT discount_rate FROM Variable_Discount WHERE discount_id=?";
+
+                                String get_task = "SELECT StandardTasktask_id FROM Job_StandardTask WHERE Jobjob_id=?";
+                                String task_price = "SELECT price FROM StandardTask WHERE task_id=?";
+
                                 try (PreparedStatement ps_job_id = con2.prepareStatement(job_id);
-                                PreparedStatement ps_variable = con2.prepareStatement(variable) )
+                                PreparedStatement ps_variable = con2.prepareStatement(variable);
+                                     PreparedStatement ps_get_job_id = con2.prepareStatement(get_job_id);
+                                     PreparedStatement ps_get_v_ID = con2.prepareStatement(get_v_ID);
+                                     PreparedStatement ps_get_v_rate = con2.prepareStatement(get_v_rate);
+                                     PreparedStatement ps_get_task = con2.prepareStatement(get_task);
+                                     PreparedStatement ps_task_price = con2.prepareStatement(task_price) )
                                 {
 
-                                    con.setAutoCommit(false);
+                                    //con.setAutoCommit(false);
 
                                     ps_job_id.setString(1, account_no);
                                     ResultSet rs_job_id = ps_job_id.executeQuery();
+                                    //System.out.println("jobid"+rs_job_id.getString(1));
 
                                     ps_variable.setString(1, rs_job_id.getString(1));
                                     ResultSet rs_variable = ps_variable.executeQuery();
+                                    //System.out.println("vid"+rs_variable.getString(1));
 
-                                    con.commit();
+                                    //con.commit();
 
 
                                     if (rs_variable.getString(1) != null){
 
+                                        //ps_get_job_id.setString(1, account_no);
+                                        //ResultSet rs_get_job_id = ps_get_job_id.executeQuery();
 
+                                        //ps_get_v_ID.setString(1, rs_get_job_id.getString(1));
+                                        //ResultSet rs_get_v_ID = ps_get_v_ID.executeQuery();
 
-                                        ps_get_job_id.setString(1, account_no);
-                                        ResultSet rs_get_job_id = ps_get_job_id.executeQuery();
-
-                                        ps_get_v_ID.setString(1, rs_get_job_id.getString(1));
-                                        ResultSet rs_get_v_ID = ps_get_v_ID.executeQuery();
-
-                                        ps_get_v_rate.setString(1, rs_get_v_ID.getString(1));
+                                        ps_get_v_rate.setString(1, rs_variable.getString(1));
                                         ResultSet rs_get_v_rate = ps_get_v_rate.executeQuery();
 
 
                                         String rates = rs_get_v_rate.getString(1);
-                                        String[] rates_array = rates.split("\\s*,\\s*");
-                                        //System.out.println(rates_array);
+                                        rates = rates.substring(1);
+                                        rates = rates.substring(0, rates.length() -1);
 
-                                        ps_get_task.setString(1, rs_get_job_id.getString(1));
+                                        String[] rates_array = rates.split("\\s*,\\s*");
+                                        //int less_than = Integer.parseInt(numbers[0]);
+                                        //System.out.println("1:"+rates_array[0]);
+                                        //System.out.println("2:"+rates_array[1]);
+                                        //System.out.println("3:"+rates_array[2]);
+                                        //System.out.println("4:"+rates_array[3]);
+                                        //System.out.println("5:"+rates_array[4]);
+                                        //System.out.println("6:"+rates_array[5]);
+                                        //System.out.println("7:"+rates_array[6]);
+                                        //System.out.println("8:"+rates_array[7]);
+
+                                        //String[] rates_array = rates.trim().split("\\s*,\\s*");
+                                        //System.out.println("ratesarray:"+rates_array.toString());
+
+                                        ps_get_task.setString(1, rs_job_id.getString(1));
                                         ResultSet rs_get_task = ps_get_task.executeQuery();
+
+
+                                        //System.out.println("task:"+rs_get_task.getString(1));
                                         while (rs_get_task.next()){
 
+                                            ps_task_price.setString(1, rs_get_task.getString(1));
+                                            ResultSet rs_task_price = ps_task_price.executeQuery();
+                                            double price = rs_task_price.getInt(1);
+
                                             int num = Integer.parseInt(rs_get_task.getString(1).substring(1));
-                                            String t = rates_array[num];
-                                            System.out.println("array:"+t);
-                                            System.out.println("original tot:"+ tot);
-                                            tot = (tot - (tot*(Integer.parseInt(t)/100)));
-                                            System.out.println("variable tot"+tot);
+                                            int t = Integer.parseInt(rates_array[num-1]);
+                                            //System.out.println("tot:"+tot);
+                                            //System.out.println("t: "+t);
+                                            //System.out.println("original tot:"+ tot);
+                                            double d = (t/100.0);
+                                            //System.out.println("d"+d);
+                                            //double x = tot * d;
+                                            double x = price * d;
+                                            //System.out.println("x:"+x);
+                                            tot = tot - x;
+                                            System.out.println("tot:"+tot);
+
+                                            //System.out.println("variable tot"+tot);
 
                                         } // while
 
@@ -485,8 +550,8 @@ public class CreateJob extends JFrame {
 
 
 
-
                                     }
+                                    //con.commit();
 
                                 } catch (SQLException ex) {
 

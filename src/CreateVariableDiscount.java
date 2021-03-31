@@ -54,7 +54,12 @@ public class CreateVariableDiscount extends JFrame {
 
                 buttonClicked = true;
 
-                if (rateTextbox.getText() != "") {
+                if (rateTextbox.getText().isEmpty()) {
+                    JOptionPane.showMessageDialog(createVariableDiscountPanel, "Please enter discount rate.");
+
+
+                } else {
+
                     list_of_rates.add(rateTextbox.getText());
                     rateTextbox.setText("");
 
@@ -69,8 +74,8 @@ public class CreateVariableDiscount extends JFrame {
                         //System.out.println(list_of_rates.toString());
                     }
 
-                } else {
-                    JOptionPane.showMessageDialog(createVariableDiscountPanel, "Please enter discount rate.");
+
+
                 }
 
 
@@ -134,6 +139,8 @@ public class CreateVariableDiscount extends JFrame {
             public void actionPerformed(ActionEvent e) {
 
                 rateTextbox.setEditable(true);
+                i = 2;
+                taskLabel.setText("T"+(i-1)+":");
 
                 if (completed) {
 
@@ -170,6 +177,7 @@ public class CreateVariableDiscount extends JFrame {
                             ps_insertVDiscount.setString(1, variable_id);
                             ps_insertVDiscount.setString(2, list_of_rates.toString());
                             ps_insertVDiscount.executeUpdate();
+                            list_of_rates.clear();
                             variable = true;
                             JOptionPane.showMessageDialog(createVariableDiscountPanel, "Discount created.");
                         } // if
@@ -205,6 +213,8 @@ public class CreateVariableDiscount extends JFrame {
                 //System.out.println("clicked");
 
                 rateTextbox.setEditable(true);
+                i = 2;
+                taskLabel.setText("T"+(i-1)+":");
 
 
                 if (!customerIDComboBox.getSelectedItem().equals("")) {
@@ -255,6 +265,7 @@ public class CreateVariableDiscount extends JFrame {
                                         ps_insert_acc.setString(1, customerIDComboBox.getSelectedItem().toString());
                                         ps_insert_acc.setString(2, list_of_rates.toString());
                                         ps_insert_acc.executeUpdate();
+                                        list_of_rates.clear();
                                         //con.commit();
                                     } else {
                                         System.out.println("set id to existing id");
@@ -276,6 +287,7 @@ public class CreateVariableDiscount extends JFrame {
                                 ps_insertVDiscount.setString(2, list_of_rates.toString());
                                 ps_insertVDiscount.setString(3, customerIDComboBox.getSelectedItem().toString());
                                 ps_insertVDiscount.executeUpdate();
+                                list_of_rates.clear();
                                 //con.commit();
                                 //JOptionPane.showMessageDialog(createVariableDiscountPanel, "Discount created.");
                             } // if
@@ -333,6 +345,7 @@ public class CreateVariableDiscount extends JFrame {
                                             ps_applyVDiscount.setString(1, variable_id);
                                             ps_applyVDiscount.setString(2, job_id);
                                             ps_applyVDiscount.executeUpdate();
+                                            list_of_rates.clear();
                                             variable = true;
                                             CreateFlexibleDiscount.flexible = false;
                                             CreateFixedDiscount.fixed = false;
@@ -343,6 +356,7 @@ public class CreateVariableDiscount extends JFrame {
                                         ps_applyVDiscount.setString(1, variable_id);
                                         ps_applyVDiscount.setString(2, job_id);
                                         ps_applyVDiscount.executeUpdate();
+                                        list_of_rates.clear();
                                         variable = true;
                                         CreateFlexibleDiscount.flexible = false;
                                         CreateFixedDiscount.fixed = false;
@@ -436,15 +450,15 @@ public class CreateVariableDiscount extends JFrame {
 
             }
         });
+
         restartButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
                 rateTextbox.setEditable(true);
-
-
                 i = 2;
-
+                taskLabel.setText("T"+(i-1)+":");
+                list_of_rates.clear();
 
 
                 Connection con = DbConnection.connect();
